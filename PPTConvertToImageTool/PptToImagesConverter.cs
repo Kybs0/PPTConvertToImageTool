@@ -29,11 +29,6 @@ namespace PPTConvertToImageTool
 
         private const string ImageExtension = ".png";
 
-        /// <summary>
-        /// 允许导入的最大Ppt文件页数
-        /// </summary>
-        public static readonly int MaxPptSlidesCount = 99;
-
         /*
          * 默认截图的高宽 为 1280*720
          */
@@ -51,7 +46,7 @@ namespace PPTConvertToImageTool
             DefaultRatio = DefaultAspectRatio.Width / DefaultAspectRatio.Height;
             DefaultHeight = (int)(DefaultWidth / DefaultRatio);
         }
-
+        private const string SlideString = "Slide-";
         /// <summary>
         /// 获取图片
         /// </summary>
@@ -75,7 +70,7 @@ namespace PPTConvertToImageTool
                 var slides = GetPptSlide(presentation).Cast<Slide>();
                 Parallel.ForEach(slides, slide =>
                 {
-                    string slidePath = Path.Combine(exportImagesFolder, "Slide-" + slide.SlideIndex + ImageExtension);
+                    string slidePath = Path.Combine(exportImagesFolder, SlideString + slide.SlideIndex + ImageExtension);
                     slide.Export(slidePath, ImageExtension, (int)size.Width, (int)size.Height);
                     if (File.Exists(slidePath))
                     {
@@ -231,23 +226,45 @@ namespace PPTConvertToImageTool
             Parallel.ForEach(files, file => { AdjustImage(file, width, height); });
         }
 
-        private void AdjustImage(string imageFilePath, int width, int height)
+        private void AdjustImage(string imageFilePath, int maxWidth, int maxHeight)
         {
-            using (Bitmap newImage = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+            using (Bitmap newImage = new Bitmap(maxWidth, maxHeight, PixelFormat.Format24bppRgb))
             {
                 using (Graphics g = Graphics.FromImage((System.Drawing.Image)newImage))
                 {
+                    g.Clear(Color.Black);
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     using (Image image = Image.FromFile(imageFilePath))
                     {
-                        int x = (width - image.Width) / 2;
-                        int y = (height - image.Height) / 2;
-                        g.DrawImage(image, x, y, image.Width, image.Height);
+                        var adjustedSize = GetAdjustedSize(image.Width, image.Height, maxWidth, maxHeight);
+                        int x = (maxWidth - adjustedSize.adjustedWidth) / 2;
+                        int y = (maxHeight - adjustedSize.adjustedHeight) / 2;
+                        g.DrawImage(image, x, y, adjustedSize.adjustedWidth, adjustedSize.adjustedHeight);
                     }
                 }
                 File.Delete(imageFilePath);
                 newImage.Save(imageFilePath, ImageFormat.Png);
             }
+        }
+
+        private (int adjustedWidth, int adjustedHeight) GetAdjustedSize(in int imageWidth, in int imageHeight, in int maxWidth, in int maxHeight)
+        {
+            var adjustedWidth = imageWidth;
+            var adjustedHeight = imageHeight;
+            var sourceRatio = adjustedHeight / Convert.ToDouble(adjustedWidth);
+            if (adjustedWidth > maxWidth)
+            {
+                adjustedWidth = maxWidth;
+                adjustedHeight = Convert.ToInt32(sourceRatio * adjustedWidth);
+            }
+            
+            if (adjustedHeight > maxHeight)
+            {
+                adjustedHeight = maxHeight;
+                adjustedWidth = Convert.ToInt32(adjustedHeight / sourceRatio);
+            }
+
+            return (adjustedWidth, adjustedHeight);
         }
     }
 }
