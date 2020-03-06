@@ -13,6 +13,7 @@ using Size = System.Windows.Size;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Kybs0.Net.Utils;
 using Microsoft.Office.Core;
 
 namespace PPTConvertToImageTool
@@ -109,7 +110,16 @@ namespace PPTConvertToImageTool
         {
             if (isSizeChanged)
             {
-                ImageProcess(images, DefaultWidth, DefaultHeight);
+                if (images == null || !images.Any())
+                {
+                    return;
+                }
+                string directoryName = new FileInfo(images.First()).DirectoryName;
+                if (string.IsNullOrEmpty(directoryName))
+                {
+                    return;
+                }
+                Parallel.ForEach(images, file => { ImageSizeAdjustHelper.AdjustImageByMaxSize(file, DefaultWidth, DefaultHeight); });
             }
         }
 
@@ -203,68 +213,6 @@ namespace PPTConvertToImageTool
             GC.WaitForPendingFinalizers();
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        /// <summary>
-        /// 图片放大至标准比例并压缩处理
-        /// </summary>
-        /// <param name="files"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        private void ImageProcess(List<string> files, int width, int height)
-        {
-            if (files == null || !files.Any())
-            {
-                return;
-            }
-            string directoryName = new FileInfo(files.First()).DirectoryName;
-            if (string.IsNullOrEmpty(directoryName))
-            {
-                return;
-            }
-
-            Parallel.ForEach(files, file => { AdjustImage(file, width, height); });
-        }
-
-        private void AdjustImage(string imageFilePath, int maxWidth, int maxHeight)
-        {
-            using (Bitmap newImage = new Bitmap(maxWidth, maxHeight, PixelFormat.Format24bppRgb))
-            {
-                using (Graphics g = Graphics.FromImage((System.Drawing.Image)newImage))
-                {
-                    g.Clear(Color.Black);
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    using (Image image = Image.FromFile(imageFilePath))
-                    {
-                        var adjustedSize = GetAdjustedSize(image.Width, image.Height, maxWidth, maxHeight);
-                        int x = (maxWidth - adjustedSize.adjustedWidth) / 2;
-                        int y = (maxHeight - adjustedSize.adjustedHeight) / 2;
-                        g.DrawImage(image, x, y, adjustedSize.adjustedWidth, adjustedSize.adjustedHeight);
-                    }
-                }
-                File.Delete(imageFilePath);
-                newImage.Save(imageFilePath, ImageFormat.Png);
-            }
-        }
-
-        private (int adjustedWidth, int adjustedHeight) GetAdjustedSize(in int imageWidth, in int imageHeight, in int maxWidth, in int maxHeight)
-        {
-            var adjustedWidth = imageWidth;
-            var adjustedHeight = imageHeight;
-            var sourceRatio = adjustedHeight / Convert.ToDouble(adjustedWidth);
-            if (adjustedWidth > maxWidth)
-            {
-                adjustedWidth = maxWidth;
-                adjustedHeight = Convert.ToInt32(sourceRatio * adjustedWidth);
-            }
-            
-            if (adjustedHeight > maxHeight)
-            {
-                adjustedHeight = maxHeight;
-                adjustedWidth = Convert.ToInt32(adjustedHeight / sourceRatio);
-            }
-
-            return (adjustedWidth, adjustedHeight);
         }
     }
 }
