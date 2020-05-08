@@ -1,27 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Office.Interop.PowerPoint;
 using Application = Microsoft.Office.Interop.PowerPoint.Application;
-using PixelFormat = System.Drawing.Imaging.PixelFormat;
-using Color = System.Drawing.Color;
 using Size = System.Windows.Size;
 using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using Kybs0.Net.Utils;
 using Microsoft.Office.Core;
 
 namespace PPTConvertToImageTool
 {
     /// <summary>
-    /// Ppt转Enbx转换器。
+    /// Ppt转image转换器。
     /// </summary>
-    internal class PptToImagesConverter
+    internal class PptToImagesConverterByMicrosoft
     {
         /// <summary>
         /// 使用密码打开ppt（如果课件无密码则正常导入，密码错误则会抛密码错误异常，这里我们使用一个密码“PASSWORD”进行解密）；详见：https://stackoverflow.com/questions/17554892/unable-to-gracefully-abort-on-unknown-password-via-microsoft-office-interop-powe
@@ -41,7 +36,7 @@ namespace PPTConvertToImageTool
 
         private int DefaultHeight { get; }
 
-        public PptToImagesConverter()
+        public PptToImagesConverterByMicrosoft()
         {
             DefaultAspectRatio = new Size(16, 9);
             DefaultRatio = DefaultAspectRatio.Width / DefaultAspectRatio.Height;

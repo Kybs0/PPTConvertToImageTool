@@ -11,13 +11,14 @@
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
                 <TextBlock Text="PPT文件路径：" VerticalAlignment="Center"></TextBlock>
-                <TextBox x:Name="PptFilePathTextBox" Width="400" Height="26" Text="G:\公开课_汪翠.ppt" VerticalContentAlignment="Center"></TextBox>
+                <TextBox x:Name="PptFilePathTextBox" Width="400" Height="26" Text="F:\公开课_汪翠 - 副本.pptx" VerticalContentAlignment="Center"></TextBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
                 <TextBlock Text="导出图片目录：" VerticalAlignment="Center"></TextBlock>
-                <TextBox x:Name="ImagesFileFolderTextBox" Width="400" Height="26" VerticalContentAlignment="Center" Text="C:\Users\10167\Desktop\新建文件夹"></TextBox>
+                <TextBox x:Name="ImagesFileFolderTextBox" Width="400" Height="26" VerticalContentAlignment="Center" Text="C:\Users\user\Desktop\新建文件夹 (3)"></TextBox>
             </StackPanel>
-            <Button x:Name="ExportButton" Click="ExportButton_OnClick" Content="导出图片" Width="100" Height="28" HorizontalAlignment="Center" Margin="20"></Button>
+            <Button x:Name="ExportButton" Click="ExportButton_OnClick" Content="导出图片(Microsoft)" Width="100" Height="28" HorizontalAlignment="Center" Margin="20"></Button>
+            <Button x:Name="ExportButton2" Click="ExportButton2_OnClick" Content="导出图片(Aspose)" Width="100" Height="28" HorizontalAlignment="Center" Margin="20"></Button>
         </StackPanel>
     </Grid>
 </Window>

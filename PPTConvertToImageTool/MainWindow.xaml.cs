@@ -29,8 +29,13 @@ namespace PPTConvertToImageTool
         private void ExportButton_OnClick(object sender, RoutedEventArgs e)
         {
             var pptFile = PptFilePathTextBox.Text;
-            var result = new PptToImagesConverter().ConvertToImages(pptFile, ImagesFileFolderTextBox.Text);
+            var result = new PptToImagesConverterByMicrosoft().ConvertToImages(pptFile, ImagesFileFolderTextBox.Text);
+        }
 
+        private void ExportButton2_OnClick(object sender, RoutedEventArgs e)
+        {
+            var pptFile = PptFilePathTextBox.Text;
+            var result = new PptToImageConverterByAspose().ConvertToImages(pptFile, ImagesFileFolderTextBox.Text);
         }
     }
 }
